@@ -3,6 +3,10 @@
 # The contents depend on whether we have bad-value support in PDL.
 # - in fact we don't create anything if there is no bad-value support
 #
+# This is probably overkill - the NDF module provides the
+# starlink bad values as constants, so we can code up perl-level
+# functions to do both the check and get functions implemented here.
+#
  
 use strict;
 
@@ -90,12 +94,16 @@ struct starlink_badvalues starlink;
  *
  * return 1 if the STARLINK bad value for this type matches
  * that of the pdl data type, 0 otherwise
+ * should take advantage of the knowledge that if we use NaNs
+ * then there is no match
  */
 
 /*
  * get bad value (gbv)
  *
  * return the STARLINK bad value for a given piddle type
+ * - this is actually NOT needed, since the NDF module
+ *   provides access to the values
  */
 
 MODULE = PDL::IO::NDF     PACKAGE = PDL::IO::NDF
