@@ -552,19 +552,20 @@ sub PDL::propndfx {  # Write a PDL to a NDF format file
 
 =head1 NOTES
 
-The perl NDF module must be available. This is available from the
-author or from Starlink (http://www.starlink.rl.ac.uk).
+The perl NDF module must be available. This is available from
+Starlink (http://www.starlink.ac.uk).
 
 If an NDF is read which contains AST World Coordinate information
 (a .WCS component) this information is currently ignored. Currently
 WCS information can only be written and stored using standard FITS headers.
-See L<http://rlspc5.bnsc.rl.ac.uk/star/docs/sun211.htx/sun211.html#xref_>
-for more information on AST.
+See L<http://www.starlink.ac.uk/ast> for more information on AST.
 
 =head1 AUTHOR
 
 This module was written by Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 Copyright (C) Tim Jenness 1997-2000. All Rights Reserved.
+
+PDL bad value support was added by Douglas Burke E<lt>dburke@cfa.harvard.eduE<gt>.
 
 =head1 SEE ALSO
 
