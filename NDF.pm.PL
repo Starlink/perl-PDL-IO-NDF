@@ -13,9 +13,10 @@ use Config;
 use File::Basename qw(&basename &dirname);
 
 # check for bad value support
-use vars qw( $bvalflag $usenan );
-use File::Spec;
-require File::Spec->catfile( File::Spec->updir, File::Spec->updir, "Basic", "Core", "badsupport.p" );
+use PDL::Config;
+
+my $bvalflag = $PDL::Config{WITH_BADVAL};
+my $usenan = $PDL::Config{BADVAL_USENAN};
 
 # This forces PL files to create target in same directory as PL file.
 # This is so that make depend always knows where to find PL derivatives.

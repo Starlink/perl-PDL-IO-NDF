@@ -10,12 +10,3 @@ WriteMakefile(
 	      clean => { FILES => 'NDF.pm' },
 );
 
-# try and get NDF.pm to be re-created if Basic/Core/badsupport.p is changed
-#
-sub MY::postamble {
-"NDF.pm :: NDF.pm.PL ../../Basic/Core/badsupport.p
-\t\$(PERL) -I\$(INST_ARCHLIB) -I\$(INST_LIB) -I\$(PERL_ARCHLIB) -I\$(PERL_LIB) NDF.pm.PL NDF.pm
-
-";
-}
-
