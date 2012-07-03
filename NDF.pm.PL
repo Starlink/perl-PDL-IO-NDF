@@ -3,7 +3,7 @@
 # The contents depend on whether we have bad-value support in PDL.
 # (there's only a small amount of code that uses bad values)
 #
-# - this is called by Makefile.PL to ensure the file exists 
+# - this is called by Makefile.PL to ensure the file exists
 #   when the makefile is written
 #
 
@@ -39,7 +39,7 @@ chmod 0644, $file;
 #########################################################
 
 print OUT <<"!WITH!SUBS!";
- 
+
 # This file is automatically created by NDF.pm.PL
 # - bad value support = $bvalflag
 !WITH!SUBS!
@@ -142,7 +142,7 @@ use vars qw( @starbad );
 sub _init_starbad {
     return if $starbad;
     _init_NDF();  # just to be safe
-    @starbad = eval 
+    @starbad = eval
           "( &NDF::VAL__BADUB,
 	     &NDF::VAL__BADW,
 	     &NDF::VAL__BADUW,
@@ -154,16 +154,16 @@ sub _init_starbad {
     $starbad = 1;
 }
 
-sub starlink_bad_value ($) { 
+sub starlink_bad_value ($) {
     _init_starbad();
-    return $starbad[$_[0]]; 
+    return $starbad[$_[0]];
 }
 
 # given a piddle, check if the Starlink bad value matches
 # the bad value used for this type
-sub compare_bad_values ($) { 
+sub compare_bad_values ($) {
     _init_starbad();
-    return ($starbad[$_[0]] == badvalue($_[0])); 
+    return ($starbad[$_[0]] == badvalue($_[0]));
 }
 
 !NO!SUBS!
@@ -261,7 +261,7 @@ sub PDL::rndf {  # Read a piddle from a NDF file
 
   # Read in the filename
   # And setup the new PDL
-  my $file = shift; 
+  my $file = shift;
   my $pdl = $class->new;
   my $nomask = shift if $#_ > -1;
 
@@ -363,7 +363,7 @@ Writes a piddle to a NDF format file:
    $pdl->wndf($file);
    wndf($pdl,$file);
 
-wndf can be used for writing PDLs to NDF files. 
+wndf can be used for writing PDLs to NDF files.
 The '.sdf' suffix is optional. All the extensions
 created by rndf are supported by wndf.  This means that error, axis
 and quality arrays will be written if they exist. Extensions are also
@@ -552,7 +552,7 @@ sub PDL::propndfx {  # Write a PDL to a NDF format file
 
 =head1 NOTES
 
-The perl NDF module must be available. This is available from the 
+The perl NDF module must be available. This is available from the
 author or from Starlink (http://www.starlink.rl.ac.uk).
 
 If an NDF is read which contains AST World Coordinate information
@@ -690,7 +690,7 @@ sub rdata {
 	print OUT <<'!NO!SUBS!';
 	# if badflag is true, convert any STARLINK bad values
 	# to PDL values
-	if ( $badflag and 
+	if ( $badflag and
 	     !compare_bad_values($temppdl->get_datatype) ) {
 	    my $star_bad = starlink_bad_value($temppdl->get_datatype);
 	    print "Converting from STARLINK bad value ($star_bad)...\n" if $PDL::verbose;
@@ -1157,9 +1157,9 @@ sub wdata {
 
     if ( $bvalflag ) {
 	print OUT <<'!NO!SUBS!';
-	# if badflag is true, convert any PDL bad values to STARLINK ones 
+	# if badflag is true, convert any PDL bad values to STARLINK ones
 	# note: we have to create a copy of the data to ensure that the
-	# bad data value of the original piddle does not get changed. 
+	# bad data value of the original piddle does not get changed.
 	# per-piddle bad values would obviate the need for this.
 	if ( $temppdl->badflag() ) {
 	    print "Setting bad flag for component $dcomp ...\n" if $PDL::verbose;
@@ -1235,10 +1235,10 @@ print OUT <<'!NO!SUBS!';
 	    my $nelem = $axis->nelem;
             if ($el == $nelem) {
 	      print "Mapping axis " , $i+1 , "\n"  if $PDL::verbose;
-	    
+
               # Number of bytes per entry
               $nbytes = PDL::Core::howbig($axis->get_datatype) * $el;
-	    
+
               # Copy to disk
               string2mem( $ { $axis->get_dataref }, $nbytes, $axpntr)
                  if ($status == &NDF::SAI__OK);
