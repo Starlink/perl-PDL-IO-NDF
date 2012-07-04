@@ -137,33 +137,34 @@ use PDL::Bad;
 
 my $starbad = 0;  # flag
 
-use vars qw( @starbad );
+use vars qw( %starbad );
 
 sub _init_starbad {
     return if $starbad;
     _init_NDF();  # just to be safe
-    @starbad = eval
-          "( &NDF::VAL__BADUB,
-	     &NDF::VAL__BADW,
-	     &NDF::VAL__BADUW,
-	     &NDF::VAL__BADI,
-	     &NDF::VAL__BADF,
-	     &NDF::VAL__BADD );
-";
-    croak 'Unable to initialise bad values from NDF library' if $@ ne "";
+
+    %starbad = (
+        $PDL_S => &NDF::VAL__BADW(),
+        $PDL_US => &NDF::VAL__BADUW(),
+        $PDL_L => &NDF::VAL__BADI(),
+        $PDL_F => &NDF::VAL__BADR(),
+        $PDL_D => &NDF::VAL__BADD(),
+        );
+
     $starbad = 1;
 }
 
 sub starlink_bad_value ($) {
     _init_starbad();
-    return $starbad[$_[0]];
+    return $starbad{$_[0]} if (exists $starbad{$_[0]});
+    croak "Unable to generate a bad Starlink value for PDL data type $_[0]\n";
 }
 
 # given a piddle, check if the Starlink bad value matches
 # the bad value used for this type
 sub compare_bad_values ($) {
     _init_starbad();
-    return ($starbad[$_[0]] == badvalue($_[0]));
+    return ($starbad{$_[0]} == badvalue($_[0]));
 }
 
 !NO!SUBS!
