@@ -1555,7 +1555,7 @@ sub whash {
         $ndims = 1;
         @dim = ($#norefs+1);
         dat_newc($loc, $comp, $maxsize, $ndims, @dim, $status);
-        cmp_putvc($loc, $comp, $dim[0], @norefs, $status);
+        cmp_putvc($loc, $comp, $dim[0], \@norefs, $status);
       };
 
       # Annul all the locators
