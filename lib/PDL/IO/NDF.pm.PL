@@ -674,6 +674,7 @@ sub rdata {
 	$nbytes = &NDF::byte_size($type);
 
 	mem2string($data_pntr, $nbytes*$el, $$dref);
+        $temppdl->upd_data();
 
 	push(@{$$header{Extensions}}, $dcomp) if $dcomp ne 'Data';
 
@@ -704,8 +705,7 @@ sub rdata {
 } # if: $bvalflag
 
 print OUT <<'!NO!SUBS!';
-	# Flush and Clear temporary PDL
-	$temppdl->upd_data();
+	# Free temporary PDL
 	undef $temppdl;
       }
 
