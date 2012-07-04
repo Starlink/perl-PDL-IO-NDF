@@ -1537,10 +1537,18 @@ sub whash {
 	  }
 	  cmp_put0l($loc, $comp, $value, $status);
         } else {
-	  no strict "refs"; # Turn off strict
-          $which = lc(substr($type, 1,1));
-          &{"dat_new0$which"}($loc, $comp, $status);
-          &{"cmp_put0$which"}($loc, $comp, $header{"$key"}, $status);
+          # HDS does not have b,ub,w or uw types for new0 and put0
+          # so we have to do create the item explicitly and put a bigger
+          # type.
+          my @dims = (0);
+          dat_new( $loc, $comp, $type, 0, \@dims, $status );
+          if ( $type =~ /_(BYTE|UBYTE|UWORD|WORD|INTEGER)$/) {
+            cmp_put0i($loc, $comp, $header{$key}, $status);
+          } elsif ($type =~ /_(REAL|DOUBLE)$/) {
+            cmp_put0d($loc, $comp, $header{$key}, $status);
+          } else {
+            croak "Unrecognized HDS type $type when writing component $comp\n";
+          }
         }
       };
 
