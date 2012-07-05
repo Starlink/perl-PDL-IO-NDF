@@ -882,7 +882,7 @@ sub rhdr {
 	  $$header{'_COMMENTS'}{$item} = $comment;
 	}
       } else {
-	print "Error mapping $xname\n";
+	print "Error mapping $xname extension\n";
 	err_annul($status);
       }
       undef @fits;
@@ -978,14 +978,14 @@ sub find_prim {
 	# dat_get0c doesn't return full precision for doubles
 	dat_get0d($loc, $value, $status);
 	if ($status != &NDF::SAI__OK) {
-	  print "Error mapping scalar 0d $type $name\n";
+	  print "Error reading $type $name scalar as double.\n";
 	  err_flush($status);
 	}
 
       } else {
 	dat_get0c($loc, $value, $status);
 	if ($status != &NDF::SAI__OK) {
-	  print "Error mapping scalar 0c $name\n";
+	  print "Error reading scalar $name with type $type as string.\n";
 	  err_flush($status);
 	}
 
@@ -1007,7 +1007,7 @@ sub find_prim {
 	dat_getvc($loc, $size, \@values, $el, $status);
 
 	if ($status != &NDF::SAI__OK) {
-	  print "Error mapping $name\n";
+	  print "Error reading $name of type $type as string.\n";
 	} else {
 	  $$href{"$name"} = [@values];
 	  undef @values;
@@ -1019,7 +1019,7 @@ sub find_prim {
 	dat_mapv($loc, $type, 'READ', $pntr, $el, $status);
 
 	if ($status != &NDF::SAI__OK) {
-	  print "Error mapping $name\n";
+	  print "Error mapping $name with type $type\n";
 	}
 
 
