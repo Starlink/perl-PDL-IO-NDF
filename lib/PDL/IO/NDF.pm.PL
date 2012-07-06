@@ -1370,6 +1370,7 @@ sub whdr {
       # This is not extension info
       ndf_cput($header{$key}, $outndf, $key, $status)
         if length($header{$key}) > 0;
+      next;
     }
 
     # Only write scalars
