@@ -18,6 +18,7 @@ my $build = Module::Build->new
                    'Douglas Burke <dburke@cfa.harvard.edu>',
                   ],
    requires => {
+                'Astro::FITS::Header' => 3.0,
                 'PDL' => "2.4.0",
                 'NDF' => 1.51,
                 },

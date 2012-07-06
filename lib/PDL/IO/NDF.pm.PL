@@ -89,6 +89,8 @@ use PDL::Types;
 use Carp;
 use strict;
 
+use Astro::FITS::Header::Item;
+
 # Starlink data type conversion
 use vars qw/%pdltypes %startypes $ndf_loaded $VERSION $EXTNAME/;
 
@@ -881,11 +883,13 @@ sub rhdr {
 
       if ($status == &NDF::SAI__OK) {
 	print "Reading FITS header...\n" if $PDL::verbose;
-	for $entry (0..$el-1) {
-	  ($item, $value, $comment) = &fits_get_nth_item(\@fits,$entry);
-	  $$header{$item} = $value;
-	  $$header{'_COMMENTS'}{$item} = $comment;
-	}
+        # unfortunately we can not store a tied Astro::FITS::Header object
+        # because we are storing other things in the header
+        for my $card (@fits) {
+          my $item = Astro::FITS::Header::Item->new( Card => $card );
+          $header->{$item->keyword} = $item->value;
+          $header->{'_COMMENTS'}{$item} = $item->comment;
+        }
       } else {
 	print "Error mapping $xname extension\n";
 	err_annul($status);
@@ -1371,9 +1375,14 @@ sub whdr {
     # Only write scalars
     if (not ref($header{"$key"})) {
 
-       push(@fits, fits_construct_string($key,$header{$key},
-            $header{'_COMMENTS'}{$key}) );
-
+       my $item = Astro::FITS::Header::Item->new( Keyword => $key,
+                                                  Value => $header{$key},
+                                                  Comment => $header{'_COMMENTS'}{$key});
+       if (defined $item) {
+         push(@fits, $item->card() );
+       } else {
+         $unused{$key} = $header{$key};
+       }
     } else {
       # Deal with later
       $unused{$key} = $header{$key};
