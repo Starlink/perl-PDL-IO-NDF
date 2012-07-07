@@ -189,10 +189,6 @@ Reads a piddle from a NDF format data file.
 The '.sdf' suffix is optional. The optional second argument turns off
 automatic quality masking and returns a quality array as well.
 
-BUG? C<rndf('bob.sdf',1)> calls ndf_sqmf(1,...), which means that
-the quality array is turned into bad pixels - ie the I<opposite> of
-above. Or am I confused?
-
 Header information and NDF Extensions are stored in the piddle as a hash
 which can be retreived with the C<$pdl-E<gt>gethdr> command.
 Array extensions are stored in the header as follows:
@@ -266,7 +262,7 @@ sub PDL::rndf {  # Read a piddle from a NDF file
   # And setup the new PDL
   my $file = shift;
   my $pdl = $class->new;
-  my $nomask = shift if $#_ > -1;
+  my $nomask = shift;
 
   my ($infile, $status, $indf, $entry, @info, $value);
 
@@ -296,10 +292,7 @@ sub PDL::rndf {  # Read a piddle from a NDF file
   ndf_find(&NDF::DAT__ROOT, $file, $indf, $status);
 
   # unset automatic quality masking if $nomask is defined
-  # I think the logic here is wrong (ie 0 and 1 should be swapped)
-  $nomask = 0 unless (defined $nomask);
-  $nomask = 1 if $nomask != 0;
-  ndf_sqmf($nomask, $indf, $status);
+  ndf_sqmf(!$nomask, $indf, $status);
 
   # Read the data array (need to pass the header as well)
   my $badflag;
