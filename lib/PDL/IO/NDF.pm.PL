@@ -976,7 +976,10 @@ sub find_prim {
 
     # Read it into the header
     if (($size == 1) && ($ndims == 0)) {
-      if ($type  eq '_DOUBLE') {
+      dat_state( $loc, my $isdefined, $status );
+      if (!$isdefined) {
+          $value = undef;
+      } elsif ($type  eq '_DOUBLE') {
 	# dat_get0c doesn't return full precision for doubles
 	dat_get0d($loc, $value, $status);
 	if ($status != &NDF::SAI__OK) {
