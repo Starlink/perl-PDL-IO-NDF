@@ -56,16 +56,16 @@ END {
 my $in = rndf( $ndffile );
 
 # Compare the number of entries
-ok( $in->dims == $pdl->dims );
+is( $in->dims,  $pdl->dims, "Compare dimensionality");
 
 # Check each entry
 my $range = $pdl->getdim(0) - 1;
 foreach ( 0 .. $range ) {
-  ok( $in->at($_) == $pdl->at($_))
+  is( $in->at($_), $pdl->at($_), "element by element comparison")
 }
 
 # Now compare headers
-ok( $pdl->gethdr->{NDFTEST} eq $in->gethdr->{NDFTEST} );
+is( $in->gethdr->{NDFTEST}, $pdl->gethdr->{NDFTEST}, "Compare NDFTEST header" );
 
 # try a 2D image
 $pdl = pdl( [1,5,10],[8,4,-4]);
@@ -73,12 +73,12 @@ $pdl->wndf( $ndffile );
 $in = rndf( $ndffile );
 
 # Compare the number of entries
-ok( $in->dims == $pdl->dims );
-ok( tapprox( sum($in - $pdl), 0.0 ) );
+is( $in->dims, $pdl->dims, "Compare dims" );
+ok( tapprox( sum($in - $pdl), 0.0 ), "Check diff" );
 
 # try a subset of the 2D image
 # NOTE: NDF starts counting at 1, not 0
 $in = rndf( "test(1:2,2)" );
-ok( tapprox( sum($in - $pdl->slice('0:1,1') ), 0.0 ) );
+ok( tapprox( sum($in - $pdl->slice('0:1,1') ), 0.0 ), "diff slice" );
 
 # end of test
