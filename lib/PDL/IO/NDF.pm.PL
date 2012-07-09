@@ -1486,7 +1486,6 @@ sub whash {
       $stypes = 'PERLDL_HDR' unless (defined $stypes && $stypes =~ /./);
 
       $loc = mkstruct($outndf, $structs, $stypes, $status);
-      undef $stypes;
 
       # Now write the component
       # $loc is a locator to the last structure component
