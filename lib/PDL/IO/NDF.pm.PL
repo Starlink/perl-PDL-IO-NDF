@@ -325,7 +325,7 @@ sub PDL::rndf {  # Read a piddle from a NDF file
     my $starstat = $status;
     my $starerr = err_flush_to_string($status);
     err_end($status);
-    croak("rndf: obtained NDF error ($starstat):\n$starerr\n");
+    croak("rndf: Starlink NDF error reading $file ($starstat):\n$starerr\n");
   }
 
   err_end($status);
@@ -466,7 +466,7 @@ sub PDL::wndf {  # Write a PDL to an NDF format file
     my $starstat = $status;
     my $starerr = err_flush_to_string($status);
     err_end($status);
-    croak "wndf: Starlink error in NDF ($starstat)\n$starerr\n";
+    croak "wndf: Starlink error writing NDF $outfile ($starstat)\n$starerr\n";
   }
 
   err_end($status);
@@ -543,7 +543,7 @@ sub PDL::propndfx {  # Write a PDL to a NDF format file
     my $starstat = $status;
     my $starerr = err_flush_to_string($status);
     err_end($status);
-    croak "propndfx: Starlink error in NDF ($starstat)\n$starerr\n";
+    croak "propndfx: Starlink error propagating from $infile to $outfile ($starstat)\n$starerr\n";
   }
 
   err_end($status);
