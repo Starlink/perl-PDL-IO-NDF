@@ -1420,24 +1420,18 @@ sub whash {
 
   my ($hash, $outndf, $hashname, $stypes, $status) = @_;
 
-  my ($key, $comp, @structures, $extension, $xtype, @dim, $ndims, $loc);
-  my (@locs, $there, $type, %header, $packed, $length);
-  my (@bounds, $nbytes, $pntr, $maxsize, $which, $el, $path);
-  my ($oldhash, $oldtypes, $structs);
+  my ($comp, $extension, $xtype, @dim, $ndims, $loc);
+  my (@locs, $there, $type, $packed, $length);
+  my (@bounds, $nbytes, $pntr, $maxsize, $which, $el);
+  my ( $structs);
 
-  if (defined $hash) {
-    %header = %$hash;
-  } else {
-    %header = ();
-  }
-
-
+  my %header = (defined $hash ? %$hash : () );
   my $root = 1 if length($hashname) == 0; # Mark a ROOT structure
 
   # Return if bad status
   return 0 if $status != &NDF::SAI__OK;
 
-  foreach $key (sort keys %header) {
+  foreach my $key (sort keys %header) {
 
     next if $key =~ /^_/;
 
@@ -1452,21 +1446,15 @@ sub whash {
 
     # Deal with HASH arrays early
     ref($header{"$key"}) eq 'HASH' && do {
-      $oldhash = $hashname;
-      $oldtypes = $stypes;
-      $hashname .= ".$key";
-      $hashname =~ s/^\.//; # remove leading dot
-      $stypes .= ".".$header{"$key"}{'_TYPES'}{STRUCT}{"$key"};
-      $stypes =~ s/^\.//; # remove leading dot
-      whash(\%{$header{"$key"}}, $outndf, $hashname, $stypes, $status);
-      $hashname = $oldhash;
-      $stypes = $oldtypes;
+      my $nhashname = $hashname . ".$key";
+      $nhashname =~ s/^\.//; # remove leading dot
+      my $nstypes = $stypes . ".".$header{"$key"}{'_TYPES'}{STRUCT}{"$key"};
+      $nstypes =~ s/^\.//; # remove leading dot
+      whash(\%{$header{"$key"}}, $outndf, $nhashname, $nstypes, $status);
       next;
     };
 
-
-
-    $path = $hashname . ".$key";
+    my $path = $hashname . ".$key";
     $path =~ s/^\.//; # remove leading dot
 
     if ($key =~ /^TITLE$|^UNITS$|^LABEL$/i) {
@@ -1475,7 +1463,7 @@ sub whash {
     } else {
 
       # Find nested structures
-      @structures = split(/\./, uc($path));
+      my @structures = split(/\./, uc($path));
 
       # Last entry in structure is the important name
       $comp = pop(@structures);
