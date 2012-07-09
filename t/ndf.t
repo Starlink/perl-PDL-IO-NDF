@@ -9,24 +9,19 @@ use Test::More;
 use PDL::LiteF;
 $PDL::verbose = 1;
 
-my $loaded;
-
 # Check that we can load the module
 BEGIN {
-  # Kluge loading to force NDF module to be loaded now.
-  # This is required since currently the PDL::IO::NDF module
-  # only loads the NDF module when required.
-  eval " use PDL::IO::NDF; use NDF";
-  $loaded = ( $@ ? 0 : 1 );
+  # Make sure we have NDF
+  my $loaded = eval "use NDF; 1";
+  if ($loaded) {
+    plan tests => 11;
+  } else {
+    plan skip_all => "NDF module not available.";
+  }
+  use_ok( "PDL::IO::NDF" );
 }
 
 kill 'INT',$$  if $ENV{UNDER_DEBUGGER}; # Useful for debugging.
-
-unless ( $loaded ) {
-   plan skip_all => "PDL::IO::NDF module not available.";
-} else {
-   plan tests => 10;
-}
 
 sub tapprox ($$) {
     my ( $a, $b ) = @_;
