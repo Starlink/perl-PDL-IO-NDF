@@ -289,7 +289,7 @@ sub PDL::rndf {  # Read a piddle from a NDF file
   ndf_begin();
 
   # Open the file
-  ndf_find(&NDF::DAT__ROOT, $file, $indf, $status);
+  ndf_find(&NDF::DAT__ROOT(), $file, $indf, $status);
 
   # unset automatic quality masking if $nomask is defined
   ndf_sqmf(!$nomask, $indf, $status);
@@ -1587,8 +1587,8 @@ sub mkstruct {
   my (@structures) = split('\.', $structs);
   my (@types) = split('\.', $types);
 
-  return &NDF::DAT__NOLOC if $#structures < 0;
-  return &NDF::DAT__NOLOC if $status != &NDF::SAI__OK;
+  return &NDF::DAT__NOLOC() if $#structures < 0;
+  return &NDF::DAT__NOLOC() if $status != &NDF::SAI__OK();
 
   # Does extension exist
 
@@ -1634,7 +1634,7 @@ sub mkstruct {
     dat_annul($_, $status);
   }
 
-  return &NDF::DAT__NOLOC unless $status == &NDF::SAI__OK;
+  return &NDF::DAT__NOLOC() unless $status == &NDF::SAI__OK;
   return $retloc;
 
 }
