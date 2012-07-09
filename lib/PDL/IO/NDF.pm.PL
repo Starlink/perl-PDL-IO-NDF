@@ -86,6 +86,7 @@ is distributed under the GPL and is available from "http://www.starlink.ac.uk".
 
 use PDL::Core;
 use PDL::Types;
+use PDL::Options;
 use Carp;
 use strict;
 
@@ -94,7 +95,7 @@ use Astro::FITS::Header::Item;
 # Starlink data type conversion
 use vars qw/%pdltypes %startypes $ndf_loaded $VERSION $EXTNAME/;
 
-$VERSION = '1.03';
+$VERSION = '1.04';
 
 # Set PDL -> Starlink data types
 %pdltypes = ("$PDL_B"  => "_UBYTE",     # was "_BYTE"
@@ -189,6 +190,16 @@ Reads a piddle from a NDF format data file.
 The '.sdf' suffix is optional. The optional second argument turns off
 automatic quality masking and returns a quality array as well.
 
+A hash options version of rndf() also exists
+
+ $pdl = rndf( 'file.sdf', nomask => 1, quickread => 1 );
+
+where the supported options are (defaults in square brackets):
+
+  nomask => (boolean) Disable automatic quality masking. [false]
+  quickread => (boolean) If true, only read the primary data array and
+            FITS header [false]
+
 Header information and NDF Extensions are stored in the piddle as a hash
 which can be retreived with the C<$pdl-E<gt>gethdr> command.
 Array extensions are stored in the header as follows:
@@ -249,8 +260,8 @@ sub rndf {PDL->rndf(@_)}
 sub PDL::rndf {  # Read a piddle from a NDF file
 
   my $class = shift;
-  barf 'Usage: $a = rndf($file,[$nomask]); $a = PDL->rndf(...) '
-    if ($#_!=0 && $#_!=1);
+  barf 'Usage: $a = rndf($file,[%args|$nomask]]); $a = PDL->rndf(...) '
+    if (@_ == 0);
 
   # ensure we have the NDF module
   _init_NDF();
@@ -262,7 +273,16 @@ sub PDL::rndf {  # Read a piddle from a NDF file
   # And setup the new PDL
   my $file = shift;
   my $pdl = $class->new;
-  my $nomask = shift;
+
+  # only one argument suggests we are using the old API, two
+  # or more indicates the hash API
+  my %opts = (nomask => 0, quickread => 0);
+  if (@_ == 1) {
+    $opts{nomask} = shift;
+  } else {
+    my %args = @_;
+    %opts = iparse( \%opts, \%args );
+  }
 
   my ($infile, $status, $indf, $entry, @info, $value);
 
@@ -291,21 +311,21 @@ sub PDL::rndf {  # Read a piddle from a NDF file
   # Open the file
   ndf_find(&NDF::DAT__ROOT(), $file, $indf, $status);
 
-  # unset automatic quality masking if $nomask is defined
-  ndf_sqmf(!$nomask, $indf, $status);
+  # unset automatic quality masking if nomask is true
+  ndf_sqmf(!$opts{nomask}, $indf, $status);
 
   # Read the data array (need to pass the header as well)
   my $badflag;
-  ( $status, $badflag ) = rdata($indf, $pdl, $nomask, $header, $class, $status);
+  ( $status, $badflag ) = rdata($indf, $pdl, \%opts, $header, $class, $status);
 
   # Read the axes
-  raxes($indf, $pdl, $header, $class, $status);
+  raxes($indf, $pdl, $header, $class, $status) unless $opts{quickread};
 
   # Read the header
-  rhdr($indf, $pdl, $header, $class, $status);
+  rhdr($indf, $pdl, $header, \%opts, $class, $status);
 
   # Read history information
-  rhist($indf, $pdl, $header, $status);
+  rhist($indf, $pdl, $header, $status) unless $opts{quickread};
 
   # Read labels
   @info = ('Label', 'Title', 'Units');
@@ -592,11 +612,11 @@ L<NDF> for information on the NDF module.
 # even in bad value support is not available in PDL)
 #
 sub rdata {
-  my ($indf, $pdl, $nomask, $header, $class, $status) = @_;
+  my ($indf, $pdl, $optref, $header, $class, $status) = @_;
 
   return ( $status, undef ) if $status != &NDF::SAI__OK;
 
-  my ($maxdims, $ndim, @dim, @comps, $dcomp, $tcomp, $exist);
+  my ($maxdims, $ndim, @dim, $dcomp, $tcomp, $exist);
   my ($type, $data_pntr, $el, $temppdl, $nbytes, $badbit, $dref);
 
   ####################################################################
@@ -619,8 +639,12 @@ sub rdata {
 
   my $badflag = 0;
 
-  @comps = ('Data','Error');
-  push(@comps, 'Quality') if $nomask;
+  my @comps = ( "Data" );
+  if (!$optref->{quickread}) {
+    # we can read additional components
+    push(@comps, "Error");
+    push(@comps, 'Quality') if $optref->{nomask};
+  }
 
   for $dcomp (@comps) {
 
@@ -846,7 +870,7 @@ sub raxes {
   ####################################################################
 
 sub rhdr {
-  my ($indf, $pdl, $header, $class, $status) = @_;
+  my ($indf, $pdl, $header, $optref, $class, $status) = @_;
 
   return $status if $status != &NDF::SAI__OK;
 
@@ -867,6 +891,12 @@ sub rhdr {
 
     undef $xloc;
     ndf_xloc($indf, $xname, 'READ', $xloc, $status);
+
+    # We only read a FITS header if quickread is enabled
+    if ($optref->{quickread} && $xname ne 'FITS') {
+      dat_annul( $xloc, $status );
+      next;
+    }
 
     # FITS is a special case and must be expanded
     if ($xname eq 'FITS') {
