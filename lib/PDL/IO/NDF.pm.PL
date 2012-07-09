@@ -1540,12 +1540,14 @@ sub whash {
 	  # In this case, add a check for FALSE or TRUE as strings
 	  dat_new0l($loc, $comp, $status);
 	  my $value = $header{$key};
-	  if ($value eq 'FALSE') {
-	    $value = 0;
-	  } elsif ($value eq 'TRUE') {
-	    $value = 1;
-	  }
-	  cmp_put0l($loc, $comp, $value, $status);
+          if (defined $value) {
+            if ($value eq 'FALSE') {
+                $value = 0;
+            } elsif ($value eq 'TRUE') {
+                $value = 1;
+            }
+            cmp_put0l($loc, $comp, $value, $status);
+          }
         } else {
           # HDS does not have b,ub,w or uw types for new0 and put0
           # so we have to do create the item explicitly and put a bigger
