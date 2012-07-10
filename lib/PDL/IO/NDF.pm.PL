@@ -319,13 +319,13 @@ sub PDL::rndf {  # Read a piddle from a NDF file
   ( $status, $badflag ) = rdata($indf, $pdl, \%opts, $header, $class, $status);
 
   # Read the axes
-  raxes($indf, $pdl, $header, $class, $status) unless $opts{quickread};
+  $status = raxes($indf, $pdl, $header, $class, $status) unless $opts{quickread};
 
   # Read the header
-  rhdr($indf, $pdl, $header, \%opts, $class, $status);
+  $status = rhdr($indf, $pdl, $header, \%opts, $class, $status);
 
   # Read history information
-  rhist($indf, $pdl, $header, $status) unless $opts{quickread};
+  $status = rhist($indf, $pdl, $header, $status) unless $opts{quickread};
 
   # Read labels
   @info = ('Label', 'Title', 'Units');
@@ -468,10 +468,10 @@ sub PDL::wndf {  # Write a PDL to an NDF format file
   ndf_happn('PDL::wndf', $status);
 
   # Write the data to this file
-  wdata($outndf, $pdl, $status);
+  $status = wdata($outndf, $pdl, $status);
 
   # Write the header and title
-  whdr($outndf, $pdl, $status);
+  $status = whdr($outndf, $pdl, $status);
 
   # Create a history extension
   ndf_hcre($outndf, $status);
@@ -551,7 +551,7 @@ sub PDL::propndfx {  # Write a PDL to a NDF format file
   ndf_annul($indf, $status);
 
   # Write the data to this file
-  wdata($outndf, $pdl, $status);
+  $status = wdata($outndf, $pdl, $status);
 
   # Annul the identifier
   ndf_annul($outndf, $status);
@@ -690,7 +690,7 @@ sub rdata {
 
 	# warning about data loss
 	if ( $type eq "_BYTE" ) {
-	    print "Warning: NDF type (signed byte) converted to PDL's unsigned byte.\n";
+	    warn "Warning: NDF type (signed byte) converted to PDL's unsigned byte.\n";
 	}
 
 	# How many bytes in this data type?
@@ -736,7 +736,6 @@ print OUT <<'!NO!SUBS!';
       ndf_unmap($indf, $tcomp, $status);
     }
   }
-  err_flush($status) if $status != &NDF::SAI__OK;
 
   return ( $status, $badflag );
 }
@@ -853,8 +852,6 @@ sub raxes {
 	# Now store this header into temppdl
 	$temppdl->sethdr($axhdr);
 
-      } else {
-	err_annul($status) unless $status == &NDF::SAI__OK;
       }
 
     }
@@ -874,7 +871,7 @@ sub rhdr {
 
   return $status if $status != &NDF::SAI__OK;
 
-  my ($nextn, $xname, $xloc, $extn, $size, @fits, $entry, $value);
+  my ($nextn, $xname, $xloc, $extn, $size, $entry, $value);
   my ($comment, $item, $el);
 
   # Read in any header information from the extensions
@@ -901,6 +898,7 @@ sub rhdr {
     # FITS is a special case and must be expanded
     if ($xname eq 'FITS') {
       # Read in the data
+      my @fits;
       dat_size($xloc, $size, $status);
       &dat_getvc($xloc, $size, \@fits, $el, $status);
 
@@ -913,11 +911,7 @@ sub rhdr {
           $header->{$item->keyword} = $item->value;
           $header->{'_COMMENTS'}{$item->keyword} = $item->comment;
         }
-      } else {
-	print "Error mapping $xname extension\n";
-	err_annul($status);
       }
-      undef @fits;
     } else {
 
       # Read in extensions to $EXTNAME
@@ -960,8 +954,6 @@ sub rhist {
 
       print "  $app on $date\n" if $PDL::verbose;
     }
-  } else {
-    err_annul($status);
   }
   return $status;
 }
@@ -984,7 +976,7 @@ sub find_prim {
   my ($pntr, $nbytes, $comment, $dref);
 
   # Return if bad status
-  return  0 if $status != &NDF::SAI__OK;
+  return  $status if $status != &NDF::SAI__OK;
 
   # Most dimensions
   $maxdims = 100;
@@ -1012,18 +1004,12 @@ sub find_prim {
       } elsif ($type  eq '_DOUBLE') {
 	# dat_get0c doesn't return full precision for doubles
 	dat_get0d($loc, $value, $status);
-	if ($status != &NDF::SAI__OK) {
-	  print "Error reading $type $name scalar as double.\n";
-	  err_flush($status);
-	}
-
+        err_rep("", "Error reading $type $name scalar as double",
+                $status ) if $status != &NDF::SAI__OK;
       } else {
 	dat_get0c($loc, $value, $status);
-	if ($status != &NDF::SAI__OK) {
-	  print "Error reading scalar $name with type $type as string.\n";
-	  err_flush($status);
-	}
-
+        err_rep("", "Error reading scalar $name with type $type as string",
+                $status ) if $status != &NDF::SAI__OK;
       }
 
       $$href{"$name"} = $value if ($status == &NDF::SAI__OK);
@@ -1042,7 +1028,8 @@ sub find_prim {
 	dat_getvc($loc, $size, \@values, $el, $status);
 
 	if ($status != &NDF::SAI__OK) {
-	  print "Error reading $name of type $type as string.\n";
+	  err_rep("", "Error reading $name of type $type as string.",
+                  $status );
 	} else {
 	  $$href{"$name"} = [@values];
 	  undef @values;
@@ -1054,7 +1041,7 @@ sub find_prim {
 	dat_mapv($loc, $type, 'READ', $pntr, $el, $status);
 
 	if ($status != &NDF::SAI__OK) {
-	  print "Error mapping $name with type $type\n";
+          err_rep("", "Error mapping $name with type $type", $status);
 	}
 
 
@@ -1119,7 +1106,7 @@ sub wdata {
 
 
   # Return if bad status
-  return  0 if $status != &NDF::SAI__OK;
+  return $status if $status != &NDF::SAI__OK;
 
   ####################################################################
   #                      D  I  M  S                                  #
@@ -1311,7 +1298,6 @@ print OUT <<'!NO!SUBS!';
 
                  # Check that we have the correct number of entries
 		 my $nelem = $axerr->nelem;
-		 print "Nelem: $nelem and $el\n";
                  if ($nelem == $el) {
                    print "Mapping errors for axis " . $i+1 . "\n"
                      if $PDL::verbose;
@@ -1353,6 +1339,7 @@ print OUT <<'!NO!SUBS!';
 
   }
 
+  return $status;
 }
 
 
@@ -1371,7 +1358,7 @@ sub whdr {
   my (%unused, @fits, $hashref, $hdr);
 
   # Return if bad status
-  return 0 if $status != &NDF::SAI__OK;
+  return $status if $status != &NDF::SAI__OK;
 
   print "Writing header information...\n" if $PDL::verbose;
 
@@ -1435,8 +1422,9 @@ sub whdr {
   delete $unused{$EXTNAME};
 
   foreach $hashref (\%unused, $header{$EXTNAME}) {
-     whash($hashref, $outndf, '', '', $status);
+     $status = whash($hashref, $outndf, '', '', $status);
   }
+  return $status;
 }
 
 
@@ -1459,7 +1447,7 @@ sub whash {
   my $root = 1 if length($hashname) == 0; # Mark a ROOT structure
 
   # Return if bad status
-  return 0 if $status != &NDF::SAI__OK;
+  return $status if $status != &NDF::SAI__OK;
 
   foreach my $key (sort keys %header) {
 
@@ -1480,7 +1468,7 @@ sub whash {
       $nhashname =~ s/^\.//; # remove leading dot
       my $nstypes = $stypes . ".".$header{"$key"}{'_TYPES'}{STRUCT}{"$key"};
       $nstypes =~ s/^\.//; # remove leading dot
-      whash(\%{$header{"$key"}}, $outndf, $nhashname, $nstypes, $status);
+      $status = whash(\%{$header{"$key"}}, $outndf, $nhashname, $nstypes, $status);
       next;
     };
 
@@ -1503,7 +1491,7 @@ sub whash {
       $structs = 'PERLDL' unless (defined $structs && $structs =~ /./);
       $stypes = 'PERLDL_HDR' unless (defined $stypes && $stypes =~ /./);
 
-      $loc = mkstruct($outndf, $structs, $stypes, $status);
+      ($status, $loc) = mkstruct($outndf, $structs, $stypes, $status);
 
       # Now write the component
       # $loc is a locator to the last structure component
@@ -1577,7 +1565,11 @@ sub whash {
           } elsif ($type =~ /_(REAL|DOUBLE)$/) {
             cmp_put0d($loc, $comp, $header{$key}, $status);
           } else {
-            croak "Unrecognized HDS type $type when writing component $comp\n";
+            if ($status == &NDF::SAI__OK) {
+              $status = &NDF::SAI__ERROR;
+              err_rep("", "Unrecognized HDS type $type when writing component $comp",
+                      $status);
+            }
           }
         }
       };
@@ -1602,6 +1594,7 @@ sub whash {
     }
   }
 
+  return $status;
 }
 
 # Subroutine to make extension structures of arbritrary depth
@@ -1617,8 +1610,14 @@ sub mkstruct {
   my (@structures) = split('\.', $structs);
   my (@types) = split('\.', $types);
 
-  return &NDF::DAT__NOLOC() if $#structures < 0;
-  return &NDF::DAT__NOLOC() if $status != &NDF::SAI__OK();
+  return ($status, &NDF::DAT__NOLOC()) if $status != &NDF::SAI__OK();
+
+  if ($#structures < 0) {
+    $status = &NDF::SAI__ERROR;
+    err_rep("", "Too few structures provided for mkstruct function (possible programming error)",
+            $status);
+    return ($status, &NDF::DAT__NOLOC());
+  }
 
   # Does extension exist
 
@@ -1664,9 +1663,7 @@ sub mkstruct {
     dat_annul($_, $status);
   }
 
-  return &NDF::DAT__NOLOC() unless $status == &NDF::SAI__OK;
-  return $retloc;
-
+  return ($status, ($status == &NDF::SAI__OK ? $retloc : &NDF::DAT__NOLOC() ));
 }
 
 # end of module
