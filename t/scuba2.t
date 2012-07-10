@@ -22,7 +22,7 @@ BEGIN {
     exit;
   }
 
-  plan tests => 10;
+  plan tests => 19;
 }
 
 BEGIN {
@@ -34,10 +34,16 @@ my $testfile = File::Spec->catfile( "t", "data", "s4a20120702_00052_0002_noi.sdf
 my $pdl = rndf( $testfile );
 
 ok( defined $pdl, "Read a PDL");
-
 is( $pdl->ndims, 2, "Number of dimensions");
-
 is( $pdl->type, double, "Check data type" );
+
+# Check the header
+my $hdr = $pdl->gethdr();
+is( $hdr->{INSTRUME}, "SCUBA-2", "Check instrument header" );
+is( $hdr->{Title}, "s4a Bolometer Noise", "Check NDF title" );
+
+my %extensions = %{ $hdr->{NDF_EXT} };
+is( scalar(keys %extensions), 2, "Count number of extensions" );
 
 if ($PDL::Bad::Status) {
   # count the number of bad values
@@ -68,3 +74,15 @@ END {
 $pdl->wndf($output);
 
 ok( -e $output, "Written output file");
+
+# Test the minimalist read
+$pdl = rndf( $testfile, QuickRead => 1 );
+
+ok( defined $pdl, "Read the new PDL");
+is( $pdl->ndims, 2, "Number of dimensions");
+is( $pdl->type, double, "Check data type" );
+
+$hdr = $pdl->gethdr();
+is( $hdr->{INSTRUME}, "SCUBA-2", "Check instrument header" );
+is( $hdr->{Title}, "s4a Bolometer Noise", "Check NDF title" );
+ok( !exists $hdr->{NDF_EXT}, "No extensions" );
