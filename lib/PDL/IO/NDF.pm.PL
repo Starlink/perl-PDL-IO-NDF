@@ -16,7 +16,6 @@ use File::Basename qw(&basename &dirname);
 use PDL::Config;
 
 my $bvalflag = $PDL::Config{WITH_BADVAL};
-my $usenan = $PDL::Config{BADVAL_USENAN};
 
 # This forces PL files to create target in same directory as PL file.
 # This is so that make depend always knows where to find PL derivatives.
