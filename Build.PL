@@ -17,6 +17,12 @@ my $build = Module::Build->new
                    'Tim Jenness <tjenness@cpan.org>',
                    'Douglas Burke <dburke@cfa.harvard.edu>',
                   ],
+   meta_merge => {
+               resources =>  {
+                              repository => "git://github.com/timj/perl-PDL-IO-NDF.git",
+                              homepage => "http://github.com/timj/perl-PDL-IO-NDF/tree/master",
+                             },
+                },
    requires => {
                 'Astro::FITS::Header' => 3.0,
                 'PDL' => "2.4.0",
@@ -27,6 +33,7 @@ my $build = Module::Build->new
                          },
    build_requires => {
                       "Test::More" => 0,
+                      "Test::Number::Delta" => 0,
                      },
   );
 

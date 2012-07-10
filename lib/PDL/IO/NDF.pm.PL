@@ -583,10 +583,13 @@ See L<http://www.starlink.ac.uk/ast> for more information on AST.
 
 =head1 AUTHOR
 
-This module was written by Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
-Copyright (C) Tim Jenness 1997-2000. All Rights Reserved.
+This module was written by Tim Jenness E<lt>tjenness@cpan.orgE<gt>.
 
 PDL bad value support was added by Douglas Burke E<lt>dburke@cfa.harvard.eduE<gt>.
+
+Copyright (C) 1998 - 2012 Tim Jenness. All Rights Reserved.  This program is free
+software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
 
 =head1 SEE ALSO
 
