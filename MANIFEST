@@ -1,3 +1,4 @@
+README
 Build.PL
 lib/PDL/IO/NDF.pm.PL
 t/ndf.t
