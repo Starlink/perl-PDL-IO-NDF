@@ -911,7 +911,7 @@ sub rhdr {
         for my $card (@fits) {
           my $item = Astro::FITS::Header::Item->new( Card => $card );
           $header->{$item->keyword} = $item->value;
-          $header->{'_COMMENTS'}{$item} = $item->comment;
+          $header->{'_COMMENTS'}{$item->keyword} = $item->comment;
         }
       } else {
 	print "Error mapping $xname extension\n";
