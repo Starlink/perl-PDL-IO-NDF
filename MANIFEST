@@ -1,3 +1,5 @@
 Build.PL
 lib/PDL/IO/NDF.pm.PL
 t/ndf.t
+t/scuba2.t
+t/data/s4a20120702_00052_0002_noi.sdf
