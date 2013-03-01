@@ -934,6 +934,10 @@ sub rhist {
 
   return $status if $status != &NDF::SAI__OK;
 
+  my $has_hist;
+  ndf_state( $indf, "HISTORY", $has_hist, $status );
+  return $status unless $has_hist;
+
   my ($nrec, $app, $date, $i);
 
   # Read HISTORY information into a Hist header
