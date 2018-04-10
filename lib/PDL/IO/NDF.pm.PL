@@ -985,7 +985,7 @@ sub find_prim {
   return  $status if $status != &NDF::SAI__OK;
 
   # Most dimensions
-  $maxdims = 100;
+  $maxdims = 7;
 
   # Is it a primitive component
   dat_prim($loc, $prim, $status);
@@ -1074,7 +1074,7 @@ sub find_prim {
   } else {
 
     my ($ndimx, @dim, $ndim);
-    dat_shape($loc, 20, \@dim, $ndim, $status);
+    dat_shape($loc, 7, \@dim, $ndim, $status);
 
     # If we have a single dimension ($ndim=0) then
     # proceed. Cant yet cope with multi-dimensional
