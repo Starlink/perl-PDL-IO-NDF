@@ -22,7 +22,7 @@ Requires the following modules from CPAN
 PDL 2.4.x or newer is required.
 
 You will also need the NDF module available from
-git://starlink.jach.hawaii.edu/perl-NDF.git and the NDF library
+git://github.com/Starlink/perl-NDF.git and the NDF library
 from a Starlink distribution (http://www.starlink.ac.uk).
 
 Installation
