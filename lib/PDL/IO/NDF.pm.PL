@@ -94,7 +94,7 @@ use Astro::FITS::Header::Item;
 # Starlink data type conversion
 use vars qw/%pdltypes %startypes $ndf_loaded $VERSION $EXTNAME/;
 
-$VERSION = '1.04';
+$VERSION = '1.05';
 
 # Set PDL -> Starlink data types
 %pdltypes = ("$PDL_B"  => "_UBYTE",     # was "_BYTE"

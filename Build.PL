@@ -11,7 +11,7 @@ my $build = Module::Build->new
   (
    module_name => "PDL::IO::NDF",
    license => "perl",
-   dist_version => '1.04',
+   dist_version => '1.05',
    dist_abstract => 'Read PDLs from NDF files and write PDLs to NDF files',
    dist_author => [
                    'Tim Jenness <tjenness@cpan.org>',
