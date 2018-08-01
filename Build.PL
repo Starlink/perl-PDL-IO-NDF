@@ -19,8 +19,8 @@ my $build = Module::Build->new
                   ],
    meta_merge => {
                resources =>  {
-                              repository => "git://github.com/timj/perl-PDL-IO-NDF.git",
-                              homepage => "http://github.com/timj/perl-PDL-IO-NDF/tree/master",
+                              repository => "git://github.com/Starlink/perl-PDL-IO-NDF.git",
+                              homepage => "http://github.com/Starlink/perl-PDL-IO-NDF/tree/master",
                              },
                 },
    requires => {
