@@ -1587,7 +1587,13 @@ sub whash {
         # nested arrays
         my @norefs = grep { not ref($_) } @{$header{"$key"}};
 
-        ($maxsize, $packed) = &NDF::pack1Dchar(\@norefs);
+        # Determinine maximum string length.
+        $maxsize = 0;
+        foreach (@norefs) {
+          my $size = length($_);
+          $maxsize = $size if $size > $maxsize;
+        }
+
         $ndims = 1;
         @dim = ($#norefs+1);
         dat_newc($loc, $comp, $maxsize, $ndims, @dim, $status);
