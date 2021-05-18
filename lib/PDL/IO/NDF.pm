@@ -1,50 +1,3 @@
-# -*-perl-*-
-#
-# The contents depend on whether we have bad-value support in PDL.
-# (there's only a small amount of code that uses bad values)
-#
-# - this is called by Makefile.PL to ensure the file exists
-#   when the makefile is written
-#
-
-use strict;
-
-use Config;
-use File::Basename qw(&basename &dirname);
-
-# check for bad value support
-use PDL::Config;
-
-my $bvalflag = $PDL::Config{WITH_BADVAL};
-
-# This forces PL files to create target in same directory as PL file.
-# This is so that make depend always knows where to find PL derivatives.
-chdir(dirname($0));
-my $file;
-($file = basename($0)) =~ s/\.PL$//;
-$file =~ s/\.pl$//
-        if ($Config{'osname'} eq 'VMS' or
-            $Config{'osname'} eq 'OS2');  # "case-forgiving"
-
-if ( $bvalflag ) {
-    print "Extracting $file (WITH bad value support)\n";
-} else {
-    print "Extracting $file (NO bad value support)\n";
-}
-
-open OUT,">$file" or die "Can't create $file: $!";
-chmod 0644, $file;
-
-#########################################################
-
-print OUT <<"!WITH!SUBS!";
-
-# This file is automatically created by NDF.pm.PL
-# - bad value support = $bvalflag
-!WITH!SUBS!
-
-print OUT <<'!NO!SUBS!';
-
 package PDL::IO::NDF;
 
 =head1 NAME
@@ -128,10 +81,6 @@ sub _init_NDF {
     croak "Cannot use NDF library: $@" if $retval != 1;
 }
 
-!NO!SUBS!
-
-    if ( $bvalflag ) {
-	print OUT <<'!NO!SUBS!';
 
 use PDL::Bad;
 
@@ -169,11 +118,6 @@ sub compare_bad_values ($) {
     return ($starbad{$_[0]} == badvalue($_[0]));
 }
 
-!NO!SUBS!
-
-} # if: $bvalflag
-
-print OUT <<'!NO!SUBS!';
 
 =head2 rndf()
 
@@ -234,10 +178,6 @@ to C<STDOUT>.
 
 =cut
 
-!NO!SUBS!
-
-    if ( $bvalflag ) {
-	print OUT <<'!NO!SUBS!';
 =for bad
 
 If the starlink bad flag is set, then the bad flag on the output
@@ -246,10 +186,6 @@ current bad value used by the piddle type (if they are different).
 
 =cut
 
-!NO!SUBS!
-} # if: $bvalflag
-
-print OUT <<'!NO!SUBS!';
 # This is one form of the new command
 
 sub rndf {PDL->rndf(@_)}
@@ -352,19 +288,10 @@ sub PDL::rndf {  # Read a piddle from a NDF file
   # Put the header into the main pdl
   $pdl->sethdr($header);
 
-!NO!SUBS!
-
-    if ( $bvalflag ) {
-	print OUT <<'!NO!SUBS!';
   # set the bad flag if it was set in the input file
   print "Bad flag status is: $badflag\n" if $PDL::verbose;
   $pdl->badflag(1) if $badflag;
 
-!NO!SUBS!
-
-} # if; $bvalflag
-
-  print OUT <<'!NO!SUBS!';
   return $pdl;
 }
 
@@ -403,21 +330,12 @@ PDLs).
 
 =cut
 
-!NO!SUBS!
-
-    if ( $bvalflag ) {
-	print OUT <<'!NO!SUBS!';
 =for bad
 
 The bad flag is written to the file, if set.
 
 =cut
 
-!NO!SUBS!
-
-} # if: $bvalflag
-
-print OUT<<'!NO!SUBS!';
 # This is one form of the new command
 # OO version.
 
@@ -713,10 +631,6 @@ sub rdata {
 	  $temppdl->sethdr($qhdr);
 	}
 
-!NO!SUBS!
-
-    if ( $bvalflag ) {
-	print OUT <<'!NO!SUBS!';
 	# if badflag is true, convert any STARLINK bad values
 	# to PDL values
 	if ( $badflag and
@@ -726,11 +640,6 @@ sub rdata {
 	    $temppdl->inplace->setvaltobad( $star_bad );
 	}
 
-!NO!SUBS!
-
-} # if: $bvalflag
-
-print OUT <<'!NO!SUBS!';
 	# Free temporary PDL
 	undef $temppdl;
       }
@@ -1183,10 +1092,6 @@ sub wdata {
         # Total number of bytes
         $nbytes *= $p1d->getdim(0);
 
-!NO!SUBS!
-
-    if ( $bvalflag ) {
-	print OUT <<'!NO!SUBS!';
 	# if badflag is true, convert any PDL bad values to STARLINK ones
 	# note: we have to create a copy of the data to ensure that the
 	# bad data value of the original piddle does not get changed.
@@ -1201,11 +1106,6 @@ sub wdata {
 	    }
 	}
 
-!NO!SUBS!
-
-} # if: $bvalflag
-
-print OUT <<'!NO!SUBS!';
         # Copy to disk
         string2mem(${$temppdl->get_dataref}, $nbytes, $pntr);
 
@@ -1681,4 +1581,3 @@ sub mkstruct {
 # end of module
 1;
 
-!NO!SUBS!

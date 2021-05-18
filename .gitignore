@@ -1,6 +1,5 @@
 META.*
 MYMETA.*
-NDF.pm
 blib
 Build
 _build
