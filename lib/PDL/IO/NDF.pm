@@ -36,6 +36,7 @@ is distributed under the GPL and is available from "http://www.starlink.ac.uk".
 
 @ISA    = qw( PDL::Exporter );
 
+use PDL;
 use PDL::Core;
 use PDL::Types;
 use PDL::Options;
