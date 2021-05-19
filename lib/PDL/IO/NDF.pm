@@ -112,7 +112,7 @@ sub starlink_bad_value ($) {
     croak "Unable to generate a bad Starlink value for PDL data type $_[0]\n";
 }
 
-# given a piddle, check if the Starlink bad value matches
+# given an ndarray, check if the Starlink bad value matches
 # the bad value used for this type
 sub compare_bad_values ($) {
     _init_starbad();
@@ -124,7 +124,7 @@ sub compare_bad_values ($) {
 
 =for ref
 
-Reads a piddle from a NDF format data file.
+Reads an ndarray from a NDF format data file.
 
 =for example
 
@@ -144,7 +144,7 @@ where the supported options are (defaults in square brackets):
   quickread => (boolean) If true, only read the primary data array and
             FITS header [false]
 
-Header information and NDF Extensions are stored in the piddle as a hash
+Header information and NDF Extensions are stored in the ndarray as a hash
 which can be retreived with the C<$pdl-E<gt>gethdr> command.
 Array extensions are stored in the header as follows:
 
@@ -157,7 +157,7 @@ then:
  %{$hdr}        contains all the FITS headers plus:
  $$hdr{Error}   contains the Error/Variance PDL
  $$hdr{Quality} The quality byte array (if reqeusted)
- @{$$hdr{Axis}} Is an array of piddles containing the information
+ @{$$hdr{Axis}} Is an array of ndarrays containing the information
                 for axis 0, 1, etc.
  $$hdr{NDF_EXT} Contains all the NDF extensions
  $$hdr{Hist}    Contains the history information
@@ -174,7 +174,7 @@ logical and character arrays are stored as plain Perl arrays. FITS
 arrays are a special case and are expanded as scalars into the header.
 
 PDL does not have a signed byte datatype, so any '_BYTE' data
-is read into a C<byte> (unsigned) piddle and a warning is printed
+is read into a C<byte> (unsigned) ndarray and a warning is printed
 to C<STDOUT>.
 
 =cut
@@ -182,8 +182,8 @@ to C<STDOUT>.
 =for bad
 
 If the starlink bad flag is set, then the bad flag on the output
-piddle is also set.  Starlink bad values are converted to the
-current bad value used by the piddle type (if they are different).
+ndarray is also set.  Starlink bad values are converted to the
+current bad value used by the ndarray type (if they are different).
 
 =cut
 
@@ -193,7 +193,7 @@ sub rndf {PDL->rndf(@_)}
 
 # And this is the real form
 # Allows the command to be called in OO form or as a function
-sub PDL::rndf {  # Read a piddle from a NDF file
+sub PDL::rndf {  # Read a ndarray from a NDF file
 
   my $class = shift;
   barf 'Usage: $a = rndf($file,[%args|$nomask]]); $a = PDL->rndf(...) '
@@ -300,7 +300,7 @@ sub PDL::rndf {  # Read a piddle from a NDF file
 
 =for ref
 
-Writes a piddle to a NDF format file:
+Writes an ndarray to a NDF format file:
 
 =for example
 
@@ -526,8 +526,8 @@ L<NDF> for information on the NDF module.
 
 # returns ( $status, $badflag ), where $badflag is:
 #
-#   1 - the piddle may contain bad data
-#   0 - the piddle contains no bad data
+#   1 - the ndarray may contain bad data
+#   0 - the ndarray contains no bad data
 #
 # This reports starlink's bad-data flag (ie it's valid
 # even in bad value support is not available in PDL)
@@ -1095,8 +1095,8 @@ sub wdata {
 
 	# if badflag is true, convert any PDL bad values to STARLINK ones
 	# note: we have to create a copy of the data to ensure that the
-	# bad data value of the original piddle does not get changed.
-	# per-piddle bad values would obviate the need for this.
+	# bad data value of the original ndarray does not get changed.
+	# per-ndarray bad values would obviate the need for this.
 	if ( $temppdl->badflag() ) {
 	    print "Setting bad flag for component $dcomp ...\n" if $PDL::verbose;
 	    ndf_sbad( 1, $outndf, $dcomp, $status );
