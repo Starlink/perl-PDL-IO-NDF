@@ -48,7 +48,7 @@ use Astro::FITS::Header::Item;
 # Starlink data type conversion
 use vars qw/%pdltypes %startypes $ndf_loaded $VERSION $EXTNAME/;
 
-$VERSION = '1.06';
+$VERSION = '1.07';
 
 # Set PDL -> Starlink data types
 %pdltypes = ("$PDL_B"  => "_UBYTE",     # was "_BYTE"
@@ -504,6 +504,8 @@ See L<http://www.starlink.ac.uk/ast> for more information on AST.
 This module was written by Tim Jenness E<lt>tjenness@cpan.orgE<gt>.
 
 PDL bad value support was added by Douglas Burke E<lt>dburke@cfa.harvard.eduE<gt>.
+
+=head1 LICENSE
 
 Copyright (C) 1998 - 2012 Tim Jenness. All Rights Reserved.  This program is free
 software; you can redistribute it and/or modify it under the same
